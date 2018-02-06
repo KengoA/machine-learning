@@ -77,7 +77,7 @@ class LearningAgent(Agent):
         # With the hand-engineered features, this learning process gets entirely negated.
 
         # Set 'state' as a tuple of relevant data for the agent
-        state = (waypoint, inputs['light'], inputs['oncoming'], inputs['right'])
+        state = (waypoint, inputs['light'], inputs['oncoming'], inputs['left'])
 
         return state
 
@@ -130,7 +130,9 @@ class LearningAgent(Agent):
         # Otherwise, choose an action with the highest Q-value for the current state
         # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
 
-        if self.learning == True:
+        if self.learning == False:
+            action = random.choice(self.valid_actions)
+        else:
             if random.random() <= self.epsilon:
                 action = random.choice(self.valid_actions)
             else:
@@ -139,8 +141,6 @@ class LearningAgent(Agent):
                 action_candidates = [item[0] for item in self.Q[state].items() if item[1] == maxQ]
                 #Select one of the list, considering ties
                 action = random.choice(action_candidates)
-        else:
-            action = random.choice(self.valid_actions)
         return action
 
 
@@ -154,9 +154,9 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        gamma = 1
-        self.Q[state][action] = self.Q[state][action] + self.alpha*(reward + gamma*self.get_maxQ(state) - self.Q[state][action])
 
+        if self.learning == True:
+            self.Q[state][action] = (1-self.alpha)*self.Q[state][action] + self.alpha*reward
         return
 
 
